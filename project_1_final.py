@@ -481,7 +481,7 @@ for player_index in range(start,end+1):
 
 
     #-----------------------------------------------------------#
-    #-----STEP 6 & 7: Organize and Export data for Analysis-------#
+    #-----STEP 6 & 7: Organize and Export data for Analysis-----#
     #-----------------------------------------------------------#
 
 
@@ -540,3 +540,33 @@ complete_dataframe_all_RS_data.to_csv('nba_project_1_RS_stats.csv')
 
 #Export complete_dataframe_all_playoff_data as a .CSV
 complete_dataframe_all_playoff_data.to_csv('nba_project_1_playoff_stats.csv')
+
+
+
+
+
+#-----------------------------------------------------------#
+#---------------STEP 8: Get Player Headshots----------------#
+#-----------------------------------------------------------#
+
+
+
+import urllib.request
+
+
+start = 0
+end = 206
+
+#Given the index number we are on, do the following: 
+for player_index in range(start,end+1):
+
+    time.sleep(3)
+
+    #Lookup the Player_ID in playerset based on the index 
+    player_id = playerset.at[player_index,'PLAYER_ID']
+
+    #Grab the image from this website
+    imgURL = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
+
+
+    urllib.request.urlretrieve(imgURL, f"C:\\Users\\James Coding\\Desktop\\Python\\Project_1_Final\\headshots\\{player_id}.png")
