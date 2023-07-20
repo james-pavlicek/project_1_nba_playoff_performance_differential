@@ -546,27 +546,58 @@ complete_dataframe_all_playoff_data.to_csv('nba_project_1_playoff_stats.csv')
 
 
 #-----------------------------------------------------------#
-#---------------STEP 8: Get Player Headshots----------------#
+#-----Appendix I: STEP 8: Get Player Bio and Headshots------#
 #-----------------------------------------------------------#
 
 
 
-import urllib.request
+#----------------------Import Packages----------------------#
+import pandas as pd
+from os import path
+import time
+from nba_api.stats.endpoints.commonplayerinfo import CommonPlayerInfo
 
+#Set path
+DATA_DIR = 'C:\\Users\\ ADD YOUR OWN PATH'
+final_playerset = pd.read_csv(path.join(DATA_DIR, 'nba_project_1_complete_dataframe_comparative_data_trimmed.csv'))
 
+#Run for all 100 players
 start = 0
-end = 216
+end = 100
 
 #Given the index number we are on, do the following: 
 for player_index in range(start,end+1):
 
-    time.sleep(3)
+    time.sleep(2)
 
     #Lookup the Player_ID in playerset based on the index 
-    player_id = playerset.at[player_index,'PLAYER_ID']
+    w = final_playerset.at[player_index,'PLAYER_ID']
 
-    #Grab the image from this website
-    imgURL = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
+    #Change Player_id from float to int
+    int_player_id  = int(w) 
+
+    #Grab PLayer name and info for Tableau Dashboard Bio
+    player_info = CommonPlayerInfo(player_id=int_player_id, timeout=10)
+
+    #Convert information into a dataframe
+    z = player_info.get_data_frames()[0]
+
+    #Create a row called "image" that will host the link to the image
+    z["image"] = [f"https://cdn.nba.com/headshots/nba/latest/1040x760/{int_player_id}.png"]
+
+    #Give the dataframe a prefix and the player_id so we can concat all dataframes
+    exec(F"player_info_{int_player_id} = z")
+    
+    #Combine all dataframes that have the prefix 'player_info_'
+    player_dataframe_all_RS_data = [var for var in globals() if var.startswith('player_info_')]
+    complete_dataframe_all_RS_data = pd.concat([globals()[var] for var in player_dataframe_all_RS_data])
+
+    #Export complete_dataframe_all_RS_data as a .CSV
+    complete_dataframe_all_RS_data.to_csv('extra_player_info.csv')
+
+#Only 82 Players out of the total 101 had images available via stats.nba.com to use for the dashboard
+#The remaining 19 Images were sourced via https://www.2kratings.com/
+#They were then hosted on a free google site here: https://sites.google.com/view/image-hosting-/
 
 
-    urllib.request.urlretrieve(imgURL, f"C:\\Users\\James Coding\\Desktop\\Python\\Project_1_Final\\headshots\\{player_id}.png")
+print('The code is done!')
